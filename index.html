@@ -1089,7 +1089,7 @@ Word count: The [VOICE: ...] markers do not count toward the 480–620 word targ
       document.getElementById('sidekickBoy').classList.toggle('active', savedSidekickGender === 'boy');
       document.getElementById('sidekickGirl').classList.toggle('active', savedSidekickGender === 'girl');
     }
-    if (!localStorage.getItem('anthropic_key')) localStorage.setItem('anthropic_key', DEFAULT_ANTHROPIC_KEY);
+    localStorage.setItem('anthropic_key', DEFAULT_ANTHROPIC_KEY);
     if (!localStorage.getItem('google_key')) localStorage.setItem('google_key', DEFAULT_GOOGLE_KEY);
     if (!localStorage.getItem('google_voice')) localStorage.setItem('google_voice', 'Aoede');
     setupAudio();

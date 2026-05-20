@@ -1376,16 +1376,23 @@ Write the next chapter. Same world, same characters, same tone. End with either 
 
       // Pass 2: review and rewrite
       document.querySelector('#loadingWrap p').textContent = `Polishing the story...`;
-      const reviewPrompt = `You are a children's story editor. Review the bedtime story draft below and rewrite it if needed. Fix any issues you find, then return the final version.
+      const reviewPrompt = `You are a children's story editor reviewing a bedtime story for a ${age}-year-old. Your most important job is making sure the story is simple, clear, and easy to follow. A child must be able to understand every sentence the first time they hear it read aloud. Rewrite anything that fails this test.
 
-Check for these problems and fix them:
-1. FORCED UNIVERSE: Does the universe feel naturally woven in, or does it feel shoehorned in? If it feels forced, soften or reduce it so the child and sidekick's adventure feels primary. Never sacrifice the story to make the universe fit.
-2. REPETITIVE SIDEKICK: Does the sidekick say or do the same thing they always do? ("maybe I am a rock," "I formally decline," triplet phrases.) If so, replace with something fresh and specific to this story.
-3. LINEARITY: Is every sentence easy to follow for a ${age}-year-old? If any moment is confusing, rewrite it to be clearer.
-4. STRUCTURE: Do all the key beats land -- the want, the resistance, the adversary, the sidekick's power, the outsmart, the lesson? If any beat is missing or weak, strengthen it.
-5. LANGUAGE: Does the vocabulary match a ${age}-year-old's comprehension? Fix anything too complex or too simple.
+Check every one of these and fix what needs fixing:
 
-If the story is already strong, return it unchanged. Do not add commentary. Return only the story in the same format:
+1. SIMPLICITY -- the most important check: Read every sentence as if you are a ${age}-year-old hearing it for the first time. If any sentence is confusing, abstract, too clever, or requires a second read to understand -- rewrite it in plain, simple language. No child should ever think "wait, what just happened?" The story must flow so naturally that a child can follow it with their eyes closed.
+
+2. LOGICAL FLOW: Does each moment lead clearly to the next? Is the cause and effect obvious? If a character does something, the reason must be immediately clear. If something happens, the result must make sense. Remove or rewrite any moment where the logic is fuzzy.
+
+3. VOCABULARY: Every word must match a ${age}-year-old's understanding. Flag and replace any word that is too complex. Use the simplest word that does the job.
+
+4. FORCED UNIVERSE: Does the universe feel natural or shoehorned in? If it feels forced, soften it. The child and sidekick's adventure must always feel primary.
+
+5. REPETITIVE SIDEKICK: Does the sidekick say or do something they have done before? ("maybe I am a rock," "I formally decline," triplet self-narration like "I am the wall. I live here now.") Replace with something fresh.
+
+6. STRUCTURE: Do all the key beats land -- the want, the blocker, the resistance, the sidekick's power, the outsmart, the ending? If any beat is weak or missing, strengthen it.
+
+If the story passes all checks, return it unchanged. Do not add commentary. Return only the final story in this exact format:
 
 TITLE: [title]
 

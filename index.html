@@ -1355,6 +1355,7 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     userPrompt += `\nRemember: open in peril, slow burn tension, clever win. ${name} or Peekchoo solves it with brains.`;
 
     try {
+      // Pass 1: generate
       const res = await fetch('https://storysnack-proxy.nftpump-io.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1372,7 +1373,46 @@ Write the next chapter. Same world, same characters, same tone. End with either 
       }
 
       const data = await res.json();
-      renderStory(data.content[0].text, universe);
+      const draft = data.content[0].text;
+
+      // Pass 2: review and rewrite
+      document.querySelector('#loadingWrap p').textContent = `Polishing the story...`;
+      const reviewPrompt = `You are a children's story editor. Review the bedtime story draft below and rewrite it if needed. Fix any issues you find, then return the final version.
+
+Check for these problems and fix them:
+1. FORCED UNIVERSE: Does the universe feel naturally woven in, or does it feel shoehorned in? If it feels forced, soften or reduce it so the child and sidekick's adventure feels primary. Never sacrifice the story to make the universe fit.
+2. REPETITIVE SIDEKICK: Does the sidekick say or do the same thing they always do? ("maybe I am a rock," "I formally decline," triplet phrases.) If so, replace with something fresh and specific to this story.
+3. LINEARITY: Is every sentence easy to follow for a ${age}-year-old? If any moment is confusing, rewrite it to be clearer.
+4. STRUCTURE: Do all the key beats land -- the want, the resistance, the adversary, the sidekick's power, the outsmart, the lesson? If any beat is missing or weak, strengthen it.
+5. LANGUAGE: Does the vocabulary match a ${age}-year-old's comprehension? Fix anything too complex or too simple.
+
+If the story is already strong, return it unchanged. Do not add commentary. Return only the story in the same format:
+
+TITLE: [title]
+
+[story paragraphs]
+
+DRAFT TO REVIEW:
+${draft}`;
+
+      const res2 = await fetch('https://storysnack-proxy.nftpump-io.workers.dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1400,
+          system: 'You are a precise children\'s story editor. Return only the final story. No commentary, no explanations, no preamble.',
+          messages: [{ role: 'user', content: reviewPrompt }]
+        })
+      });
+
+      if (!res2.ok) {
+        const err2 = await res2.json().catch(() => ({}));
+        throw new Error(`${res2.status}: ${err2?.error?.message || JSON.stringify(err2)}`);
+      }
+
+      const data2 = await res2.json();
+      renderStory(data2.content[0].text, universe);
 
     } catch (e) {
       setError(e.message || 'Something went wrong. Check your API key in settings.');

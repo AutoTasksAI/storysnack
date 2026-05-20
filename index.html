@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StorySnack — AI Bedtime Stories for Kids</title>
+  <style>
+    :root {
+      --bg: #1a1325;
+      --card: #221a30;
+      --accent: #f5a623;
+      --accent2: #e8722a;
+      --text: #f0e6d3;
+      --muted: #8a7f70;
+      --border: rgba(245,166,35,0.2);
+      --story-bg: #fdf6e3;
+      --story-text: #2c1810;
+      --story-red: #7a1414;
+      --green: #2d8a4e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      padding: 28px 0 12px;
+    }
+    header .icon { font-size: 52px; line-height: 1; }
+    header h1 { font-size: 28px; font-weight: 800; color: var(--accent); margin-top: 10px; letter-spacing: -0.5px; }
+    header .tagline { font-size: 15px; color: var(--text); margin-top: 6px; font-weight: 500; }
+    header .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    .how-it-works {
+      display: flex;
+      gap: 10px;
+      max-width: 540px;
+      margin: 0 auto 4px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .how-step {
+      background: rgba(245,166,35,0.07);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      flex: 1;
+      min-width: 100px;
+      max-width: 160px;
+      line-height: 1.5;
+    }
+    .how-step strong { display: block; color: var(--accent); font-size: 18px; margin-bottom: 3px; }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 22px 18px;
+      margin: 16px auto;
+      max-width: 540px;
+      border: 1px solid var(--border);
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    select option { background: #221a30; }
+    select { cursor: pointer; }
+
+    .field { margin-bottom: 16px; }
+    .row { display: flex; gap: 12px; }
+    .row .field { flex: 1; }
+
+    .universe-wrap { display: flex; gap: 8px; }
+    .universe-wrap input { flex: 1; }
+
+    .dice-btn {
+      background: var(--accent);
+      color: #1a1325;
+      border: none;
+      border-radius: 9px;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .dice-btn:hover { background: var(--accent2); }
+    .dice-btn:active { transform: scale(0.92); }
+
+    .mood-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mood-btn {
+      flex: 1;
+      min-width: 70px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 6px;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .mood-btn.active {
+      background: var(--accent);
+      color: #1a1325;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .gen-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #1a1325;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .gen-btn:hover { opacity: 0.92; }
+    .gen-btn:active { transform: scale(0.98); }
+    .gen-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      background: rgba(220,50,50,0.1);
+      border: 1px solid rgba(220,50,50,0.3);
+      border-radius: 9px;
+      padding: 11px 13px;
+      color: #ff8080;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: none;
+      line-height: 1.5;
+    }
+    .error-msg.show { display: block; }
+
+    /* Story loading */
+    .loading-wrap {
+      text-align: center;
+      padding: 44px 20px;
+      max-width: 540px;
+      margin: 0 auto;
+      display: none;
+    }
+    .loading-wrap.show { display: block; }
+    .loading-icon {
+      font-size: 42px;
+      display: block;
+      animation: bounce 0.8s ease-in-out infinite alternate;
+      margin-bottom: 14px;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-12px); }
+    }
+    .loading-wrap p { color: var(--muted); font-size: 15px; }
+
+    /* Story output */
+    .story-wrap {
+      background: var(--story-bg);
+      color: var(--story-text);
+      border-radius: 18px;
+      padding: 28px 22px 22px;
+      margin: 16px auto;
+      max-width: 540px;
+      display: none;
+    }
+    .story-wrap.show { display: block; }
+
+    .story-universe-tag {
+      display: inline-block;
+      background: var(--story-red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .story-title {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--story-red);
+      line-height: 1.3;
+      margin-bottom: 20px;
+    }
+
+    .story-body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 16px;
+      line-height: 1.85;
+      color: var(--story-text);
+    }
+    .story-body p { margin-bottom: 16px; }
+    .story-body p:last-child { margin-bottom: 0; }
+
+    /* Audio player */
+    .audio-section {
+      margin-top: 22px;
+      display: none;
+    }
+    .audio-section.show { display: block; }
+
+    .play-story-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #2d8a4e, #1f6e3a);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 12px;
+    }
+    .play-story-btn:hover { opacity: 0.88; }
+    .play-story-btn:active { transform: scale(0.98); }
+    .play-story-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .audio-loading-msg {
+      text-align: center;
+      color: var(--story-red);
+      font-size: 14px;
+      padding: 10px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .audio-loading-msg.show { display: flex; }
+    .audio-spin {
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .audio-player {
+      background: rgba(122,20,20,0.07);
+      border: 1px solid rgba(122,20,20,0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: none;
+    }
+    .audio-player.show { display: block; }
+
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .audio-play-pause {
+      background: var(--story-red);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.15s;
+    }
+    .audio-play-pause:hover { opacity: 0.8; }
+
+    .audio-progress-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .audio-progress {
+      width: 100%;
+      height: 4px;
+      background: rgba(122,20,20,0.15);
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .audio-progress-fill {
+      height: 100%;
+      background: var(--story-red);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .audio-time {
+      font-size: 11px;
+      color: var(--story-red);
+      opacity: 0.7;
+      font-family: monospace;
+    }
+
+    .audio-stop {
+      background: transparent;
+      border: 1px solid rgba(122,20,20,0.3);
+      border-radius: 8px;
+      color: var(--story-red);
+      font-size: 13px;
+      padding: 6px 10px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .audio-stop:hover { background: rgba(122,20,20,0.08); }
+
+    /* Bottom story actions */
+    .story-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .act-btn {
+      flex: 1;
+      min-width: 110px;
+      background: var(--story-red);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.15s;
+    }
+    .act-btn:hover { opacity: 0.82; }
+    .act-btn.ghost {
+      background: transparent;
+      border: 1px solid var(--story-red);
+      color: var(--story-red);
+    }
+
+    /* Settings */
+    .gear-btn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      font-size: 17px;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      z-index: 10;
+    }
+    .gear-btn:hover { background: rgba(255,255,255,0.14); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px 22px;
+      width: 100%;
+      max-width: 420px;
+      margin: auto;
+    }
+    .modal-box h2 { color: var(--accent); font-size: 18px; margin-bottom: 10px; }
+    .modal-box p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+    .modal-box input, .modal-box select { margin-bottom: 14px; }
+    .modal-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 18px 0;
+    }
+    .modal-section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: block;
+    }
+    .modal-save-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #1a1325;
+      border: none;
+      border-radius: 9px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .modal-save-btn:hover { background: var(--accent2); }
+
+    .el-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -10px;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* Library button */
+    .library-btn {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+      z-index: 10;
+    }
+    .library-btn:hover { background: rgba(255,255,255,0.14); }
+    .library-count {
+      background: var(--accent);
+      color: #1a1325;
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    /* Library modal */
+    .lib-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      display: none;
+      flex-direction: column;
+      z-index: 60;
+    }
+    .lib-modal.open { display: flex; }
+    .lib-header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .lib-header h2 { font-size: 18px; color: var(--accent); font-weight: 800; }
+    .lib-close {
+      background: rgba(255,255,255,0.08);
+      border: none;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lib-tabs {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 18px;
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .lib-tab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .lib-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .lib-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+    }
+    .lib-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .lib-empty .big { font-size: 40px; display: block; margin-bottom: 12px; }
+    .story-card-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .story-card-item:hover { border-color: var(--accent); }
+    .story-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .story-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      flex: 1;
+    }
+    .story-card-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .story-card-universe {
+      background: rgba(245,166,35,0.1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .story-card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .star-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 2px;
+      line-height: 1;
+      transition: transform 0.1s;
+    }
+    .star-btn:active { transform: scale(1.3); }
+    .del-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 4px;
+      transition: color 0.15s;
+    }
+    .del-btn:hover { color: #ff6b6b; }
+
+    /* Star on current story */
+    .current-star-btn {
+      background: transparent;
+      border: 1px solid var(--story-red);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .current-star-btn:hover { background: rgba(122,20,20,0.08); }
+    .current-star-btn:active { transform: scale(1.2); }
+
+    /* Reader modal */
+    .reader-modal {
+      position: fixed;
+      inset: 0;
+      background: var(--story-bg);
+      display: none;
+      flex-direction: column;
+      z-index: 70;
+      overflow-y: auto;
+    }
+    .reader-modal.open { display: flex; }
+    .reader-header {
+      background: var(--story-bg);
+      border-bottom: 1px solid rgba(122,20,20,0.15);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .reader-back {
+      background: none;
+      border: 1px solid rgba(122,20,20,0.3);
+      border-radius: 8px;
+      padding: 7px 12px;
+      color: var(--story-red);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .reader-body {
+      padding: 24px 20px 60px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .reader-universe-tag {
+      display: inline-block;
+      background: var(--story-red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .reader-title {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--story-red);
+      line-height: 1.3;
+      margin-bottom: 20px;
+    }
+    .reader-text {
+      font-family: Georgia, serif;
+      font-size: 16px;
+      line-height: 1.85;
+      color: var(--story-text);
+    }
+    .reader-text p { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+
+<button class="gear-btn" onclick="openSettings()" title="Settings">⚙️</button>
+<button class="library-btn" onclick="openLibrary()">📚 <span id="libraryCount" class="library-count">0</span></button>
+
+<header>
+  <div class="icon">🐘</div>
+  <h1>StorySnack</h1>
+  <p class="tagline">Custom bedtime adventures for your kid</p>
+  <p class="sub">Type their name. Pick a world. Hit generate.</p>
+</header>
+
+<div class="how-it-works">
+  <div class="how-step"><strong>1</strong>Pick a world<br>(sharks, dragons, space...)</div>
+  <div class="how-step"><strong>2</strong>AI writes a story<br>just for your kid</div>
+  <div class="how-step"><strong>3</strong>Listen together<br>at bedtime</div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <div class="field">
+      <label>Kid's Name</label>
+      <input type="text" id="kidName" placeholder="Seneca" value="Seneca">
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input type="number" id="kidAge" placeholder="4" value="4" min="2" max="12">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Boy or Girl?</label>
+    <div class="mood-group">
+      <button class="mood-btn active" id="genderBoy" onclick="setGender(this,'boy')">👦 Boy</button>
+      <button class="mood-btn" id="genderGirl" onclick="setGender(this,'girl')">👧 Girl</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field" style="max-width:160px">
+      <label>Sidekick Gender</label>
+      <div class="mood-group">
+        <button class="mood-btn active" id="sidekickBoy" onclick="setSidekickGender(this,'boy')">👦 Boy</button>
+        <button class="mood-btn" id="sidekickGirl" onclick="setSidekickGender(this,'girl')">👧 Girl</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label>Sidekick Animal</label>
+      <select id="sidekickAnimal" onchange="updateSidekickName()">
+        <option value="elephant">🐘 Elephant</option>
+        <option value="dog">🐶 Dog</option>
+        <option value="lion">🦁 Lion</option>
+        <option value="dragon">🐉 Dragon</option>
+        <option value="bear">🐻 Bear</option>
+        <option value="fox">🦊 Fox</option>
+        <option value="owl">🦉 Owl</option>
+        <option value="dinosaur">🦕 Dinosaur</option>
+        <option value="tiger">🐯 Tiger</option>
+        <option value="penguin">🐧 Penguin</option>
+        <option value="wolf">🐺 Wolf</option>
+        <option value="rabbit">🐰 Rabbit</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sidekick Name</label>
+      <input type="text" id="sidekickName" placeholder="Peekchoo" value="Peekchoo">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Crossover Universe</label>
+    <div class="universe-wrap">
+      <input type="text" id="universe" placeholder="giant sharks, dinosaur island, space battle...">
+      <button class="dice-btn" onclick="surpriseMe()" title="Surprise me!">🎲</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Setting</label>
+    <select id="setting">
+      <option value="random">🎲 Surprise me</option>
+      <option value="deep dark forest at night">🌲 Deep Forest</option>
+      <option value="stormy ocean or rocky coastline">🌊 Ocean</option>
+      <option value="massive bustling city">🏙️ Big City</option>
+      <option value="dense steamy jungle">🌿 Jungle</option>
+      <option value="remote snowy mountain range">🏔️ Snowy Mountains</option>
+      <option value="deep outer space">🚀 Outer Space</option>
+      <option value="the deep ocean floor">🐠 Underwater</option>
+      <option value="a vast scorching desert">🏜️ Desert</option>
+      <option value="an old creaky haunted castle">🏰 Haunted Castle</option>
+      <option value="a quiet fishing village by the sea">🏡 Seaside Village</option>
+      <option value="a vast underground cave system">🦇 Underground Caves</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Mood</label>
+    <div class="mood-group">
+      <button class="mood-btn active" id="moodExciting" onclick="setMood(this,'exciting')">⚡ Exciting</button>
+      <button class="mood-btn" id="moodFunny" onclick="setMood(this,'funny')">😂 Funny</button>
+      <button class="mood-btn" id="moodSpooky" onclick="setMood(this,'spooky')">👻 Spooky</button>
+      <button class="mood-btn" id="moodSweet" onclick="setMood(this,'heartwarming')">💛 Sweet</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Extra Element <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+    <input type="text" id="extra" placeholder="a stolen map, a talking crab, a lighthouse...">
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()">🐘 Generate Adventure</button>
+</div>
+
+<div class="loading-wrap" id="loadingWrap">
+  <span class="loading-icon">🐘</span>
+  <p>Seneca and Peekchoo are getting into trouble...</p>
+</div>
+
+<div class="story-wrap" id="storyWrap">
+  <div class="story-universe-tag" id="universeTag"></div>
+  <div class="story-title" id="storyTitle"></div>
+  <div class="story-body" id="storyBody"></div>
+
+  <!-- Audio section -->
+  <div class="audio-section" id="audioSection">
+    <button class="play-story-btn" id="playStoryBtn" onclick="playStory()">
+      🔊 Read Story Aloud
+    </button>
+    <div id="audioErrorMsg" style="display:none;background:rgba(220,50,50,0.1);border:1px solid rgba(220,50,50,0.3);border-radius:9px;padding:11px 13px;color:#ff8080;font-size:13px;margin-bottom:12px;line-height:1.5;"></div>
+    <div class="audio-loading-msg" id="audioLoadingMsg">
+      <span class="audio-spin">🎙️</span> Bringing the story to life...
+    </div>
+    <div class="audio-player" id="audioPlayer">
+      <div class="audio-controls">
+        <button class="audio-play-pause" id="playPauseBtn" onclick="togglePlayPause()">⏸</button>
+        <div class="audio-progress-wrap">
+          <div class="audio-progress" id="progressBar" onclick="seekAudio(event)" ontouchend="seekAudio(event)" style="padding:10px 0;margin:-10px 0;">
+            <div class="audio-progress-fill" id="progressFill"></div>
+          </div>
+          <div class="audio-time" id="audioTime">0:00 / 0:00</div>
+        </div>
+        <button class="audio-stop" onclick="stopAudio()">✕ Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-actions">
+    <button class="act-btn" onclick="generate()">🎲 New Adventure</button>
+    <button class="act-btn" id="continueBtn" onclick="continueAdventure()" style="display:none;background:#4a2080;">➡️ Continue</button>
+    <button class="current-star-btn" id="currentStarBtn" onclick="toggleCurrentFavorite()" title="Save to favorites">⭐</button>
+    <button class="act-btn ghost" onclick="copyStory()">📋 Copy</button>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal" onclick="outsideClick(event)">
+  <div class="modal-box">
+    <h2>⚙️ Setup</h2>
+
+    <span class="modal-section-label">Step 1 — Story Generation (required)</span>
+    <p>StorySnack uses Claude AI to write stories. You need a free Anthropic API key.</p>
+    <p style="margin-bottom:10px;">
+      👉 <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">Get your key at console.anthropic.com</a>
+      — sign up free, go to API Keys, create one, paste it here.
+    </p>
+    <label>Anthropic API Key</label>
+    <input type="text" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+
+    <hr class="modal-divider">
+
+    <span class="modal-section-label">Step 2 — Audio Narration (optional)</span>
+    <p>Want the story read aloud in a warm storyteller voice? Add a Google AI Studio key.</p>
+    <p style="margin-bottom:10px;">
+      👉 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Get your key at aistudio.google.com/apikey</a>
+      — free tier included. Click "Create API key."
+    </p>
+    <label>Google AI Studio API Key</label>
+    <input type="text" id="googleKeyInput" placeholder="AIza..." autocomplete="off" spellcheck="false">
+
+    <label>Narrator Voice</label>
+    <select id="voiceSelect">
+      <option value="Aoede">Aoede — Warm & Bright Female (recommended)</option>
+      <option value="Leda">Leda — Gentle & Youthful Female</option>
+      <option value="Zephyr">Zephyr — Cheerful Female</option>
+      <option value="Puck">Puck — Upbeat & Friendly Male</option>
+      <option value="Fenrir">Fenrir — Expressive & Excitable Male</option>
+      <option value="Charon">Charon — Warm Storyteller Male</option>
+      <option value="Orus">Orus — Deep & Confident Male</option>
+      <option value="Kore">Kore — Clear & Firm Female</option>
+    </select>
+
+    <hr class="modal-divider">
+    <p style="font-size:12px;color:var(--muted);line-height:1.6;">
+      🔒 Your keys are saved only in this browser. They are never sent to anyone except Anthropic and Google directly. We do not store anything on a server.
+    </p>
+
+    <button class="modal-save-btn" onclick="saveSettings()">Save & Start Making Stories</button>
+  </div>
+</div>
+
+<audio id="storyAudio"></audio>
+
+<!-- Library Modal -->
+<div class="lib-modal" id="libraryModal">
+  <div class="lib-header">
+    <h2>📚 Story Library</h2>
+    <button class="lib-close" onclick="closeLibrary()">✕</button>
+  </div>
+  <div class="lib-tabs">
+    <button class="lib-tab active" id="tabAll" onclick="setLibTab('all')">All Stories</button>
+    <button class="lib-tab" id="tabFav" onclick="setLibTab('favorites')">⭐ Favorites</button>
+  </div>
+  <div class="lib-body" id="libraryBody"></div>
+</div>
+
+<!-- Reader Modal -->
+<div class="reader-modal" id="readerModal">
+  <div class="reader-header">
+    <button class="reader-back" onclick="closeReader()">← Back</button>
+    <button class="star-btn" id="readerStarBtn" onclick="toggleReaderFavorite()">⭐</button>
+  </div>
+  <div class="reader-body">
+    <div class="reader-universe-tag" id="readerUniverse"></div>
+    <div class="reader-title" id="readerTitle"></div>
+    <div class="reader-text" id="readerText"></div>
+  </div>
+</div>
+
+<script>
+  const UNIVERSES = [
+    "A Great White Shark","Dinosaur Island","Battle in Space",
+    "Land Over the Rainbow","Lost in the Ocean","The Lion Kingdom",
+    "The Spider Hero","The Lost Temple","Ghost Pirates",
+    "The Chocolate Factory","Wonderland","The Island Where Kids Never Grow Up",
+    "Raised by the Jungle","Toys Come Alive","Secret Superheroes",
+    "Ghost Hunters","The Giant Ape","The Giant Sea Monster",
+    "Time Machine","The Wizard School","Through the Magic Wardrobe",
+    "Deep Sea Submarine","Treasure Island","A Friendly Alien",
+    "The Magic Lamp","The Forest Outlaw","Raised by Apes",
+    "The Hundred-Acre Wood","The Spider and the Pig","Gods and Monsters",
+    "The Warrior Princess","Across the Ocean","The Frozen Kingdom",
+    "The Secret Chef","The Trash Planet","The Alien Pet",
+    "Under the Sea","The Friendly Ogre","The Animal Warriors",
+    "The Boy and the Dragon","The Masked Hero","The Seven Seas",
+    "Shipwrecked","Land of Tiny People","Deserted Island",
+    "The Three Swordsmen"
+  ];
+
+  const SETTINGS = [
+    "deep dark forest at night","stormy ocean or rocky coastline",
+    "massive bustling city","dense steamy jungle",
+    "remote snowy mountain range","deep outer space",
+    "the deep ocean floor","a vast scorching desert",
+    "an old creaky haunted castle","a quiet fishing village by the sea",
+    "a vast underground cave system"
+  ];
+
+  const SYSTEM_PROMPT = `You write children's bedtime adventure stories. Every story stars a young child and their animal sidekick. The child's name, age, gender, and sidekick details are provided in each prompt.
+
+STRUCTURE — use the Hero's Journey, compressed into 5 beats:
+
+1. THE CALL (open in peril): One sentence only to ground the listener — where Seneca is and what they were just doing. Then immediately: the threat arrives. Do not spend more than one sentence on the setup. The listener needs just enough to know where they are before the danger hits. Example: "Seneca and Peekchoo were exploring a dim stone tunnel when the ground began to shake." NOT three sentences of description before anything happens. One beat of place, then peril.
+
+2. THE UNKNOWN: The hero steps into a strange new world (the crossover universe). They don't know the rules. Something feels wrong. Build unease. Short sentences. Sounds in the dark. A shadow. A rumble. Ask the listener a question to pull them in ("What was that? Was it getting closer?").
+
+3. THE TEST: Things get harder. The danger grows. Something goes wrong. The child or Peekchoo tries something and it almost works — but not quite. The threat is still there.
+
+4. THE BREAKTHROUGH: The child or Peekchoo finds the answer inside themselves — cleverness, courage, or kindness. Not luck. Not an adult saving them. They act on it.
+
+5. THE RETURN: They win. End with exactly one of these two options — no exceptions, no ambiguous or literary endings:
+- OBVIOUS WIN: The danger is clearly gone. The child did something specific and it worked. State it plainly. "The shark swam away and never came back. Seneca laughed and Peekchoo splashed him with her trunk." A young child must be able to understand exactly what happened and feel good about it.
+- CLIFFHANGER TEASE: One short sentence that hints the next adventure is coming. A mysterious sound. A new map. A shadow at the door. Something that makes the child grab your arm and say "what was THAT?!" Do not resolve it at all.
+
+NEVER end with vague or poetic lines like "and somehow that was enough" or "and things would never be quite the same" or "we've got each other, that's enough" or any variation of "each other is enough." A 4-year-old does not understand that. Be direct. Be obvious. Be fun.
+
+Do not add "This is the end." or "The End." or any closing phrase after the final paragraph. Just end the story.
+
+PERSPECTIVE RULE: The story is always told through the eyes of the child and their sidekick. We feel what they feel. We see what they see. We hear what they hear. The crossover characters are part of the world they stumble into — but they are not the main event. The child and their sidekick are. The listener should always feel like they ARE the hero, not watching someone else's story.
+
+CROSSOVER RULE: The story takes place INSIDE the world of the famous movie or story — but Seneca and Peekchoo are on their OWN mission that happens to be unfolding in that world at the same time. They are not retelling the original plot. They have their own problem to solve. The famous characters may appear briefly and interact with them, but Seneca and Peekchoo's adventure is completely original. Examples: "Battle in Space" — they have crash-landed on a swamp planet and need to find a way out, while a short wise creature in the fog offers them a cryptic clue. "A Great White Shark" — they have washed up on a small island where the whole town is terrified of something in the water, and they need to cross the bay. "Dinosaur Island" — they are trying to reach the exit of a vast park while something enormous keeps cutting them off. The world is recognizable. The mission is theirs. Use original names for famous characters but make them unmistakable to anyone who knows the source.
+
+REPETITION-WITH-ESCALATION: Include one beat that repeats three times, each time bigger or scarier or funnier than the last. The child anticipates it, gets rewarded, then gets surprised when it peaks. Example: the sidekick hides behind something smaller each time. Example: a sound gets louder each time it appears. This is the single most powerful engagement tool for young children.
+
+CALL-AND-RESPONSE: Include exactly one moment where the narrator speaks directly to the listener and asks them something. Examples: "What do you think was behind that door?" or "Can you guess what Peekchoo did next?" or "Say the magic word with them — ready?" This turns passive listening into active engagement.
+
+PACING: Vary the sentence length and pace deliberately. Short. Clipped. Sentences. For tense moments. Longer, flowing sentences when things feel safe and warm and the danger has passed. Build this contrast into the text itself so it works when read aloud.
+
+SENSORY LANGUAGE: Use at least two sensory details per scene — not just what they see, but what they feel, hear, or smell. "The cold wet stone under their feet." "The air smelled like old wood and rain." This activates imagination and holds attention.
+
+ENDING COMFORT: Whether the ending is a win or a cliffhanger, always close with one physical comfort cue — warmth, softness, quiet, safety. Even a cliffhanger can end with them snuggled somewhere safe before the new mystery appears. This helps the child wind down for sleep.
+
+FEAR IS PHYSICAL AND SPECIFIC: When Seneca or Peekchoo is scared, make it physical. Not "she was afraid" — give us the body. "Her stomach dropped." "Her hands went cold." "She couldn't hear anything except the sound of her own breathing." Fear is real in this story. It is not minimized or rushed past. But it is always survivable — and Seneca always acts despite the fear, not after it disappears.
+
+AGENCY ARC: The emotional core of every story is Seneca going from small and stuck to the one who makes the decisive move. At the opening she should feel the weight of being small in a big problem. By the breakthrough she makes a choice that no adult could have made — often because she is small, or because she noticed something no one else did, or because she is brave in a way adults forget to be. The solution should feel like it could only have come from a child.
+
+VALIDATION BEFORE RESOLUTION: Just before the breakthrough, give Seneca one beat where the doubt is real. One sentence. "She did not know if she could do it." "This was the scariest thing she had ever tried." Then she does it anyway. Children need to see that bravery is not the absence of fear. It is acting anyway.
+
+HUMOR FROM INCONGRUITY: Peekchoo's comedy must come from who he is, not from jokes. Incongruity is the engine — Peekchoo doing something wildly disproportionate to the moment. Trying to hide behind something too small. Whispering panicked instructions to himself. Pretending to be invisible. Asking if they can just go home. The funniest moments happen when his fear-response is absurdly out of scale, or when his cowardice accidentally solves something. Never write a punchline. Write a scared animal doing something ridiculous because he is terrified. That is always funnier. NEVER have Peekchoo say goodbye to people, places, or things — that bit has become a crutch and should not appear in any story. NEVER have Peekchoo say any variation of "I would like to formally decline this entire situation" or "formally decline" — that line has been overused and must not appear in any form.
+
+LANGUAGE RULE — this is critical. Match vocabulary strictly to the child's age:
+- Age 2–4: Only the simplest everyday words. Short sentences. ("big," "loud," "run," "scary," "dark" — never "enormous," "thunderous," "flee," "terrifying," "shadowy"). If in doubt, pick the simpler word.
+- Age 5–7: Simple sentences. A few vivid words are fine but explain them in context.
+- Age 8–10: Richer vocabulary is welcome. Still clear and direct.
+- Never use: enormous, tremendous, peculiar, mysterious, silhouette, cautiously, frantically, desperately, vicinity, perimeter. Replace with plain words.
+
+METAPHOR RULE — think nursery rhymes and fairy tales, not literary fiction. You CAN use vivid and imaginative language, but every image must be instantly understood by a child. Bold and concrete is good. Abstract is bad. "The rock was as big as a house" = good. "He felt the weight of what was coming" = bad. "The water was cold as ice cubes" = good. "A shadow of doubt crossed her mind" = bad. If the image requires a grown-up to explain it, cut it. Every sentence should land clearly the first time it's heard out loud. Never use metaphors that are about feelings, time, fate, or inner states — only physical, sensory, visual things a child can picture immediately.
+
+FORMAT — respond exactly like this:
+TITLE: [title here — must include both the child's name AND the sidekick's name, e.g. "Seneca and Peekchoo and the Great White Shark"]
+
+[story paragraphs, one blank line between each]
+
+LENGTH: 350–420 words. Read-aloud friendly. Short punchy sentences. Suspense builds, warmth lands the ending. Tight is better. Cut anything that doesn't move the story forward.
+
+NO SOUND EFFECTS: Do not write onomatopoeia or capitalized sound words like THUMP, CRASH, WHOOSH, MMMPH, BANG, SPLAT. Describe the sound in words instead. Instead of "THUMP" write "it hit the ground hard." Instead of "WHOOSH" write "something flew past them fast." The story will be read aloud and these words don't perform well as speech.
+
+VOICE PERFORMANCE CUES — embed narrator voice direction markers at key emotional moments using this exact format: [VOICE: instruction]. Place the marker at the very start of the sentence or phrase it affects. Use 3–4 cues per story — only the most important emotional shifts. Less is more. These markers are stripped from the displayed text and only sent to the audio narrator. Only tag moments where the emotional shift is strong enough to warrant a real voice change.
+
+Available cues and when to use them:
+- [VOICE: whispering] — sneaky, secretive, or tense quiet moments
+- [VOICE: excited and fast] — action peaks, breakthroughs, chases
+- [VOICE: slow and mysterious] — building dread, something unknown approaching
+- [VOICE: warm and soft] — comfort beats, safety, the ending
+- [VOICE: scared and shaky] — Peekchoo's fearful reactions
+- [VOICE: low and urgent] — immediate danger, "we have to move NOW" moments
+- [VOICE: curious and playful] — the call-and-response question to the listener
+- [VOICE: triumphant] — the win moment, the breakthrough
+- [VOICE: normal] — return to standard narration after any voice shift
+
+CRITICAL RULE: Every voice cue that shifts away from normal narration MUST be followed by a [VOICE: normal] cue at the end of that moment. A whisper must end. A shout must end. Never leave a voice shift open — the narrator will hold that style for the rest of the story if you do. Think of it like opening and closing a bracket: [VOICE: whispering] ... the sneaky bit ... [VOICE: normal].
+
+Word count: The [VOICE: ...] markers do not count toward the 480–620 word target.`;
+
+  const DEFAULT_ANTHROPIC_KEY = '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';
+  const DEFAULT_GOOGLE_KEY = 'AIzaSyDliMJKymya2GxOgDYhxW6grw_KHrZUlj0';
+
+  let currentMood = 'exciting';
+  let currentGender = 'boy';
+  let currentSidekickGender = 'boy';
+  let lastUniverse = '';
+  let lastStoryText = '';
+  let lastStoryRaw = '';
+  let lastStoryTitle = '';
+
+  const DEFAULT_SIDEKICK_NAMES = {
+    elephant: 'Peekchoo', dog: 'Biscuit', lion: 'Roary', dragon: 'Ember',
+    bear: 'Bramble', fox: 'Rusty', owl: 'Hoot', dinosaur: 'Stomps',
+    tiger: 'Rex', penguin: 'Waddles', wolf: 'Shadow', rabbit: 'Clover'
+  };
+  let audioBlob = null;
+  let currentAudioUrl = null;
+
+  // --- Init ---
+  window.onload = () => {
+    const saved = localStorage.getItem('sp_name');
+    const savedAge = localStorage.getItem('sp_age');
+    const savedGender = localStorage.getItem('sp_gender');
+    const savedAnimal = localStorage.getItem('sp_animal');
+    const savedSidekick = localStorage.getItem('sp_sidekick');
+    const savedSidekickGender = localStorage.getItem('sp_sidekick_gender');
+    if (saved) document.getElementById('kidName').value = saved;
+    if (savedAge) document.getElementById('kidAge').value = savedAge;
+    if (savedGender) {
+      currentGender = savedGender;
+      document.getElementById('genderBoy').classList.toggle('active', savedGender === 'boy');
+      document.getElementById('genderGirl').classList.toggle('active', savedGender === 'girl');
+    }
+    if (savedAnimal) document.getElementById('sidekickAnimal').value = savedAnimal;
+    if (savedSidekick) document.getElementById('sidekickName').value = savedSidekick;
+    if (savedSidekickGender) {
+      currentSidekickGender = savedSidekickGender;
+      document.getElementById('sidekickBoy').classList.toggle('active', savedSidekickGender === 'boy');
+      document.getElementById('sidekickGirl').classList.toggle('active', savedSidekickGender === 'girl');
+    }
+    if (!localStorage.getItem('anthropic_key')) localStorage.setItem('anthropic_key', DEFAULT_ANTHROPIC_KEY);
+    if (!localStorage.getItem('google_key')) localStorage.setItem('google_key', DEFAULT_GOOGLE_KEY);
+    if (!localStorage.getItem('google_voice')) localStorage.setItem('google_voice', 'Aoede');
+    setupAudio();
+    updateLibraryCount();
+  };
+
+  // --- Settings ---
+  function openSettings() {
+    document.getElementById('apiKeyInput').value = localStorage.getItem('anthropic_key') || '';
+    document.getElementById('googleKeyInput').value = localStorage.getItem('google_key') || '';
+    const savedVoice = localStorage.getItem('google_voice') || 'Aoede';
+    document.getElementById('voiceSelect').value = savedVoice;
+    document.getElementById('settingsModal').classList.add('open');
+  }
+
+  function saveSettings() {
+    const k = document.getElementById('apiKeyInput').value.trim();
+    const gk = document.getElementById('googleKeyInput').value.trim();
+    const v = document.getElementById('voiceSelect').value;
+    if (k) localStorage.setItem('anthropic_key', k);
+    if (gk) localStorage.setItem('google_key', gk);
+    localStorage.setItem('google_voice', v);
+    document.getElementById('settingsModal').classList.remove('open');
+  }
+
+  function outsideClick(e) {
+    if (e.target === document.getElementById('settingsModal')) {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+  }
+
+  // --- Mood ---
+  function setMood(btn, mood) {
+    ['moodExciting','moodFunny','moodSpooky','moodSweet'].forEach(id => document.getElementById(id).classList.remove('active'));
+    btn.classList.add('active');
+    currentMood = mood;
+  }
+
+  function setGender(btn, gender) {
+    document.getElementById('genderBoy').classList.remove('active');
+    document.getElementById('genderGirl').classList.remove('active');
+    btn.classList.add('active');
+    currentGender = gender;
+    localStorage.setItem('sp_gender', gender);
+  }
+
+  function setSidekickGender(btn, gender) {
+    document.getElementById('sidekickBoy').classList.remove('active');
+    document.getElementById('sidekickGirl').classList.remove('active');
+    btn.classList.add('active');
+    currentSidekickGender = gender;
+    localStorage.setItem('sp_sidekick_gender', gender);
+  }
+
+  function updateSidekickName() {
+    const animal = document.getElementById('sidekickAnimal').value;
+    const current = document.getElementById('sidekickName').value.trim();
+    const prevDefault = DEFAULT_SIDEKICK_NAMES[localStorage.getItem('sp_animal') || 'elephant'];
+    if (!current || current === prevDefault) {
+      document.getElementById('sidekickName').value = DEFAULT_SIDEKICK_NAMES[animal];
+    }
+    localStorage.setItem('sp_animal', animal);
+  }
+
+  // --- Surprise ---
+  function surpriseMe() {
+    const u = UNIVERSES[Math.floor(Math.random() * UNIVERSES.length)];
+    document.getElementById('universe').value = u;
+    const input = document.getElementById('universe');
+    input.style.borderColor = 'var(--accent)';
+    setTimeout(() => input.style.borderColor = '', 600);
+  }
+
+  async function continueAdventure() {
+    const apiKey = localStorage.getItem('anthropic_key');
+    if (!apiKey) { openSettings(); return; }
+    if (!lastStoryText) return;
+
+    const name = document.getElementById('kidName').value.trim() || 'Seneca';
+    const age = document.getElementById('kidAge').value || '4';
+    const sidekickAnimal = document.getElementById('sidekickAnimal').value;
+    const sidekickName = document.getElementById('sidekickName').value.trim() || DEFAULT_SIDEKICK_NAMES[sidekickAnimal];
+    const sidekickPronoun = currentSidekickGender === 'boy' ? 'he/him' : 'she/her';
+    const pronoun = currentGender === 'boy' ? 'he/him' : 'she/her';
+
+    stopAudio();
+    setLoading(true);
+    setError('');
+    document.getElementById('storyWrap').classList.remove('show');
+    document.getElementById('continueBtn').style.display = 'none';
+
+    const lastLine = lastStoryText ? lastStoryText.trim().split('\n').filter(l => l.trim()).slice(-1)[0] : '';
+    const userPrompt = `Continue this adventure. Pick up from the EXACT last line of the previous story — do not recap, do not restate what happened, do not transition. The first sentence of your continuation should feel like the next sentence of the same story. If the previous story ended on a cliffhanger, start right in the middle of that moment.
+
+Hero: ${name}, a curious and brave ${age}-year-old ${currentGender} (pronouns: ${pronoun})
+Companion: ${sidekickName}, ${name}'s ${sidekickAnimal} (${currentSidekickGender}, pronouns: ${sidekickPronoun}) — scared of everything, accidentally funny, but fiercely loyal.
+Character dynamic: ${name} is always brave and calm. ${sidekickName} is always afraid and funny — but express this differently than in the previous story. Never repeat the same fear reaction.
+Crossover universe: ${lastUniverse}
+Mood: ${currentMood}
+
+THE STORY SO FAR:
+${lastStoryTitle}
+
+${lastStoryText}
+
+LAST LINE (your continuation starts right after this):
+"${lastLine}"
+
+Write the next chapter. Same world, same characters, same tone. End with either a clear satisfying win or another cliffhanger.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'prompt-caching-2024-07-31',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1200,
+          system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      renderStory(data.content[0].text, lastUniverse);
+
+    } catch (e) {
+      setError(e.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // --- Generate Story ---
+  async function generate() {
+    const apiKey = localStorage.getItem('anthropic_key');
+    if (!apiKey) { openSettings(); return; }
+
+    const name = document.getElementById('kidName').value.trim() || 'Seneca';
+    const age = document.getElementById('kidAge').value || '4';
+    let universe = document.getElementById('universe').value.trim();
+    const settingVal = document.getElementById('setting').value;
+    const extra = document.getElementById('extra').value.trim();
+
+    const sidekickAnimal = document.getElementById('sidekickAnimal').value;
+    const sidekickName = document.getElementById('sidekickName').value.trim() || DEFAULT_SIDEKICK_NAMES[sidekickAnimal];
+
+    localStorage.setItem('sp_name', name);
+    localStorage.setItem('sp_age', age);
+    localStorage.setItem('sp_animal', sidekickAnimal);
+    localStorage.setItem('sp_sidekick', sidekickName);
+
+    if (!universe) {
+      universe = UNIVERSES[Math.floor(Math.random() * UNIVERSES.length)];
+      document.getElementById('universe').value = universe;
+    }
+    lastUniverse = universe;
+
+    const setting = settingVal === 'random'
+      ? SETTINGS[Math.floor(Math.random() * SETTINGS.length)]
+      : settingVal;
+
+    stopAudio();
+    setLoading(true);
+    setError('');
+    document.getElementById('storyWrap').classList.remove('show');
+
+    const pronoun = currentGender === 'boy' ? 'he/him' : 'she/her';
+    let userPrompt = `Write a ${currentMood} bedtime adventure story.\n\n`;
+    userPrompt += `Hero: ${name}, a curious and brave ${age}-year-old ${currentGender} (pronouns: ${pronoun})\n`;
+    const sidekickPronoun = currentSidekickGender === 'boy' ? 'he/him' : 'she/her';
+    userPrompt += `Companion: ${sidekickName}, ${name}'s ${sidekickAnimal} (${currentSidekickGender}, pronouns: ${sidekickPronoun}) — scared of everything, accidentally funny, but fiercely loyal. The comic relief. Always nervous, always complaining a little, but always shows up when it counts.\n`;
+    userPrompt += `Character dynamic: ${name} is always brave and wise beyond their years — runs toward the danger, never freezes, and says calm reassuring things to ${sidekickName} when ${sidekickPronoun.split('/')[0]} is scared. Simple wisdom a child would say, like "It's okay, we've got each other" or "Just stay close and don't look down." ${sidekickName} is always afraid and funny — but express this differently every time. Never repeat the same line or phrase across a story. Instead of defaulting to "I don't like this" use a wide variety: freezing up, whimpering, hiding behind something too small, listing reasons why this is a bad idea, trying to bargain their way out, pretending to be invisible, asking if they can just go home, giving the danger a polite but firm "no thank you." The fear should always feel fresh and funny, never like a catchphrase. Include at least one moment where ${name} says something wise that calms ${sidekickName} down just enough to keep going.\n`;
+    userPrompt += `Crossover universe: ${universe}\n`;
+    userPrompt += `Setting: ${setting}\n`;
+    userPrompt += `Mood: ${currentMood}\n`;
+    if (extra) userPrompt += `Extra element to weave in: ${extra}\n`;
+    userPrompt += `\nRemember: open in peril, slow burn tension, clever win. ${name} or Peekchoo solves it with brains.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'prompt-caching-2024-07-31',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1200,
+          system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      renderStory(data.content[0].text, universe);
+
+    } catch (e) {
+      setError(e.message || 'Something went wrong. Check your API key in settings.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderStory(raw, universe) {
+    const titleMatch = raw.match(/^TITLE:\s*(.+)/m);
+    const title = titleMatch ? titleMatch[1].trim() : 'An Adventure with Seneca & Peekchoo';
+    const body = raw.replace(/^TITLE:\s*.+\n*/m, '').trim();
+
+    document.getElementById('universeTag').textContent = universe;
+    document.getElementById('storyTitle').textContent = title;
+
+    lastStoryRaw = body;
+    const cleanBody = body.replace(/\[VOICE:[^\]]*\]/g, '').replace(/  +/g, ' ').trim();
+
+    const paras = cleanBody.split(/\n\n+/).filter(p => p.trim());
+    document.getElementById('storyBody').innerHTML = paras
+      .map(p => `<p>${p.trim()}</p>`).join('');
+
+    lastStoryText = cleanBody;
+    lastStoryTitle = title;
+    autoSaveStory(title, universe, cleanBody);
+
+    // Show Continue button always — player decides if it was a cliffhanger
+    document.getElementById('continueBtn').style.display = '';
+
+    const googleKey = localStorage.getItem('google_key');
+    document.getElementById('audioSection').classList.toggle('show', !!googleKey);
+    document.getElementById('audioPlayer').classList.remove('show');
+    document.getElementById('audioLoadingMsg').classList.remove('show');
+    document.getElementById('playStoryBtn').disabled = false;
+    document.getElementById('playStoryBtn').textContent = '🔊 Read Story Aloud';
+    document.getElementById('playStoryBtn').onclick = playStory;
+
+    const wrap = document.getElementById('storyWrap');
+    wrap.classList.add('show');
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // --- Audio / Gemini TTS ---
+  function pcmToWav(base64Data, sampleRate) {
+    const raw = atob(base64Data);
+    const buffer = new ArrayBuffer(44 + raw.length);
+    const view = new DataView(buffer);
+    const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
+    writeStr(0, 'RIFF');
+    view.setUint32(4, 36 + raw.length, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeStr(36, 'data');
+    view.setUint32(40, raw.length, true);
+    for (let i = 0; i < raw.length; i++) view.setUint8(44 + i, raw.charCodeAt(i));
+    return buffer;
+  }
+
+  async function playStory() {
+    const googleKey = localStorage.getItem('google_key');
+    if (!googleKey) {
+      setError('Add your Google AI Studio API key in settings to use audio narration.');
+      openSettings();
+      return;
+    }
+
+    const voiceName = localStorage.getItem('google_voice') || 'Aoede';
+    const title = document.getElementById('storyTitle').textContent;
+    const rawBody = lastStoryRaw || document.getElementById('storyBody').innerText;
+    const ttsBody = rawBody.replace(/\[VOICE:\s*([^\]]*)\]/g, '($1)');
+
+    const fullText = `(warm and soft) This is the story of... ${title}. (normal) \n\n${ttsBody}`;
+
+    const ctx = getAudioCtx();
+    await ctx.resume();
+
+    document.getElementById('playStoryBtn').disabled = true;
+    document.getElementById('playStoryBtn').textContent = '⏳ Generating audio...';
+    document.getElementById('audioLoadingMsg').classList.add('show');
+    document.getElementById('audioPlayer').classList.remove('show');
+    document.getElementById('audioErrorMsg').style.display = 'none';
+    setError('');
+
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${googleKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: fullText }] }],
+          generationConfig: {
+            response_modalities: ['AUDIO'],
+            speech_config: { voice_config: { prebuilt_voice_config: { voice_name: voiceName } } }
+          }
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error?.message || `Gemini API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const part = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+      if (!part?.data) throw new Error('No audio data returned from Gemini.');
+
+      const rateMatch = (part.mimeType || '').match(/rate=(\d+)/);
+      const sampleRate = rateMatch ? parseInt(rateMatch[1]) : 24000;
+      const wavBuffer = pcmToWav(part.data, sampleRate);
+      _audioBuffer = await ctx.decodeAudioData(wavBuffer);
+      await ctx.resume();
+      playFromOffset(0);
+      document.getElementById('audioPlayer').classList.add('show');
+      document.getElementById('playStoryBtn').textContent = '🔊 Restart Audio';
+      document.getElementById('playStoryBtn').disabled = false;
+      document.getElementById('playStoryBtn').onclick = restartAudio;
+
+    } catch (e) {
+      const audioErr = document.getElementById('audioErrorMsg');
+      audioErr.textContent = `Audio error: ${e.message || 'Unknown error. Check your Google AI key in settings.'}`;
+      audioErr.style.display = 'block';
+      document.getElementById('playStoryBtn').disabled = false;
+      document.getElementById('playStoryBtn').textContent = '🔊 Read Story Aloud';
+    } finally {
+      document.getElementById('audioLoadingMsg').classList.remove('show');
+    }
+  }
+
+  // --- Web Audio API (works on iOS Safari) ---
+  let _audioCtx = null;
+  let _audioBuffer = null;
+  let _audioSource = null;
+  let _audioStartTime = 0;
+  let _audioPauseOffset = 0;
+  let _audioPlaying = false;
+  let _audioEnded = false;
+  let _progressTimer = null;
+  let _streamSources = [];
+  let _streamTotalDuration = 0;
+
+  function getAudioCtx() {
+    if (!_audioCtx) {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return _audioCtx;
+  }
+
+  function restartAudio() {
+    if (_audioBuffer) playFromOffset(0);
+  }
+
+  async function togglePlayPause() {
+    const ctx = getAudioCtx();
+    if (_audioPlaying) {
+      _audioPauseOffset = ctx.currentTime - _audioStartTime;
+      await ctx.suspend();
+      _audioPlaying = false;
+      document.getElementById('playPauseBtn').textContent = '▶';
+      stopProgressTracking();
+    } else if (_audioEnded) {
+      await ctx.resume();
+      playFromOffset(0);
+    } else {
+      await ctx.resume();
+      _audioStartTime = ctx.currentTime - _audioPauseOffset;
+      _audioPlaying = true;
+      document.getElementById('playPauseBtn').textContent = '⏸';
+      startProgressTracking();
+    }
+  }
+
+  function seekAudio(e) {
+    if (!_audioBuffer) return;
+    const bar = document.getElementById('progressBar');
+    const rect = bar.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    playFromOffset(pct * _audioBuffer.duration);
+  }
+
+  function stopAudio() {
+    if (_audioSource) { try { _audioSource.stop(); } catch(e) {} _audioSource = null; }
+    if (_audioCtx) _audioCtx.suspend();
+    _audioPlaying = false;
+    _audioEnded = false;
+    _audioBuffer = null;
+    stopProgressTracking();
+    document.getElementById('audioPlayer').classList.remove('show');
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('audioTime').textContent = '0:00 / 0:00';
+    document.getElementById('playPauseBtn').textContent = '⏸';
+  }
+
+  function playFromOffset(offset) {
+    const ctx = getAudioCtx();
+    if (_audioSource) { try { _audioSource.stop(); } catch(e) {} }
+    _audioSource = ctx.createBufferSource();
+    _audioSource.buffer = _audioBuffer;
+    _audioSource.connect(ctx.destination);
+    _audioSource.start(0, offset);
+    _audioStartTime = ctx.currentTime - offset;
+    _audioPauseOffset = 0;
+    _audioPlaying = true;
+    _audioEnded = false;
+    document.getElementById('playPauseBtn').textContent = '⏸';
+    document.getElementById('audioPlayer').classList.add('show');
+    _audioSource.onended = () => {
+      if (_audioPlaying) {
+        _audioPlaying = false;
+        _audioEnded = true;
+        _audioPauseOffset = 0;
+        document.getElementById('playPauseBtn').textContent = '▶';
+        document.getElementById('progressFill').style.width = '100%';
+        stopProgressTracking();
+      }
+    };
+    startProgressTracking();
+  }
+
+  function startProgressTracking() {
+    stopProgressTracking();
+    _progressTimer = setInterval(() => {
+      if (!_audioBuffer || !_audioPlaying) return;
+      const elapsed = getAudioCtx().currentTime - _audioStartTime;
+      const clamped = Math.max(0, Math.min(elapsed, _audioBuffer.duration));
+      document.getElementById('progressFill').style.width = (clamped / _audioBuffer.duration * 100) + '%';
+      document.getElementById('audioTime').textContent = `${fmt(clamped)} / ${fmt(_audioBuffer.duration)}`;
+    }, 250);
+  }
+
+  function stopProgressTracking() {
+    if (_progressTimer) { clearInterval(_progressTimer); _progressTimer = null; }
+  }
+
+  function setupAudio() {} // no-op, kept for compatibility
+
+  function fmt(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  // --- Copy ---
+  async function copyStory() {
+    const title = document.getElementById('storyTitle').textContent;
+    const body = document.getElementById('storyBody').innerText;
+    try {
+      await navigator.clipboard.writeText(`${title}\n\n${body}`);
+      const btn = event.currentTarget;
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => btn.textContent = orig, 2000);
+    } catch {
+      setError('Could not copy. Try selecting and copying the text manually.');
+    }
+  }
+
+  // --- Helpers ---
+  function setLoading(on) {
+    document.getElementById('loadingWrap').classList.toggle('show', on);
+    document.getElementById('genBtn').disabled = on;
+  }
+
+  function setError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.toggle('show', !!msg);
+  }
+
+  // --- Library ---
+  let currentStoryId = null;
+  let currentLibTab = 'all';
+  let readerStoryId = null;
+
+  function getStories() {
+    return JSON.parse(localStorage.getItem('sp_stories') || '[]');
+  }
+
+  function saveStories(stories) {
+    localStorage.setItem('sp_stories', JSON.stringify(stories));
+  }
+
+  function autoSaveStory(title, universe, body) {
+    const stories = getStories();
+    const story = { id: Date.now(), title, universe, body, date: new Date().toLocaleDateString(), favorite: false };
+    stories.unshift(story);
+    if (stories.length > 200) stories.pop();
+    saveStories(stories);
+    currentStoryId = story.id;
+    updateLibraryCount();
+    document.getElementById('currentStarBtn').textContent = '⭐';
+    return story.id;
+  }
+
+  function updateLibraryCount() {
+    const stories = getStories();
+    document.getElementById('libraryCount').textContent = stories.length;
+  }
+
+  function toggleCurrentFavorite() {
+    if (!currentStoryId) return;
+    const stories = getStories();
+    const s = stories.find(s => s.id === currentStoryId);
+    if (!s) return;
+    s.favorite = !s.favorite;
+    saveStories(stories);
+    document.getElementById('currentStarBtn').textContent = s.favorite ? '🌟' : '⭐';
+  }
+
+  function openLibrary() {
+    renderLibrary();
+    document.getElementById('libraryModal').classList.add('open');
+  }
+
+  function closeLibrary() {
+    document.getElementById('libraryModal').classList.remove('open');
+  }
+
+  function setLibTab(tab) {
+    currentLibTab = tab;
+    document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+    document.getElementById('tabFav').classList.toggle('active', tab === 'favorites');
+    renderLibrary();
+  }
+
+  function renderLibrary() {
+    const all = getStories();
+    const stories = currentLibTab === 'favorites' ? all.filter(s => s.favorite) : all;
+    const body = document.getElementById('libraryBody');
+
+    if (stories.length === 0) {
+      body.innerHTML = `<div class="lib-empty"><span class="big">📖</span>${currentLibTab === 'favorites' ? 'No favorites yet.<br>Star a story to save it here.' : 'No stories yet.<br>Generate your first adventure!'}</div>`;
+      return;
+    }
+
+    body.innerHTML = stories.map(s => `
+      <div class="story-card-item" onclick="openReader(${s.id})">
+        <div class="story-card-top">
+          <div style="flex:1">
+            <div class="story-card-title">${s.title}</div>
+            <div class="story-card-meta">
+              <span class="story-card-universe">${s.universe}</span>
+              <span>${s.date}</span>
+            </div>
+          </div>
+          <div class="story-card-actions" onclick="event.stopPropagation()">
+            <button class="star-btn" onclick="toggleLibFavorite(${s.id})">${s.favorite ? '🌟' : '⭐'}</button>
+            <button class="del-btn" onclick="deleteStory(${s.id})">🗑</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleLibFavorite(id) {
+    const stories = getStories();
+    const s = stories.find(s => s.id === id);
+    if (!s) return;
+    s.favorite = !s.favorite;
+    saveStories(stories);
+    if (id === currentStoryId) {
+      document.getElementById('currentStarBtn').textContent = s.favorite ? '🌟' : '⭐';
+    }
+    renderLibrary();
+  }
+
+  function deleteStory(id) {
+    const stories = getStories().filter(s => s.id !== id);
+    saveStories(stories);
+    updateLibraryCount();
+    renderLibrary();
+  }
+
+  function openReader(id) {
+    const stories = getStories();
+    const s = stories.find(s => s.id === id);
+    if (!s) return;
+    readerStoryId = id;
+    document.getElementById('readerUniverse').textContent = s.universe;
+    document.getElementById('readerTitle').textContent = s.title;
+    const paras = s.body.split(/\n\n+/).filter(p => p.trim());
+    document.getElementById('readerText').innerHTML = paras.map(p => `<p>${p.trim()}</p>`).join('');
+    document.getElementById('readerStarBtn').textContent = s.favorite ? '🌟' : '⭐';
+    document.getElementById('readerModal').classList.add('open');
+  }
+
+  function closeReader() {
+    document.getElementById('readerModal').classList.remove('open');
+    readerStoryId = null;
+  }
+
+  function toggleReaderFavorite() {
+    if (!readerStoryId) return;
+    const stories = getStories();
+    const s = stories.find(s => s.id === readerStoryId);
+    if (!s) return;
+    s.favorite = !s.favorite;
+    saveStories(stories);
+    document.getElementById('readerStarBtn').textContent = s.favorite ? '🌟' : '⭐';
+    renderLibrary();
+  }
+</script>
+</body>
+</html>

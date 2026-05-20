@@ -719,7 +719,7 @@
   <div class="icon">🐘</div>
   <h1>StorySnack</h1>
   <p class="tagline">Custom bedtime adventures for your kid</p>
-  <p class="sub" style="color:red;font-size:16px;font-weight:bold;">v7</p>
+  <p class="sub" style="color:red;font-size:16px;font-weight:bold;">v8</p>
   <p class="sub">Type their name. Pick a world. Hit generate.</p>
 </header>
 
@@ -1202,14 +1202,9 @@ LAST LINE (your continuation starts right after this):
 Write the next chapter. Same world, same characters, same tone. End with either a clear satisfying win or another cliffhanger.`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://storysnack-proxy.nftpump-io.workers.dev', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1200,
@@ -1280,14 +1275,9 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     userPrompt += `\nRemember: open in peril, slow burn tension, clever win. ${name} or Peekchoo solves it with brains.`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://storysnack-proxy.nftpump-io.workers.dev', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1200,

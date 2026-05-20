@@ -1207,13 +1207,12 @@ Write the next chapter. Same world, same characters, same tone. End with either 
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-beta': 'prompt-caching-2024-07-31',
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1200,
-          system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+          system: SYSTEM_PROMPT,
           messages: [{ role: 'user', content: userPrompt }]
         })
       });
@@ -1286,13 +1285,12 @@ Write the next chapter. Same world, same characters, same tone. End with either 
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-beta': 'prompt-caching-2024-07-31',
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1200,
-          system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+          system: SYSTEM_PROMPT,
           messages: [{ role: 'user', content: userPrompt }]
         })
       });

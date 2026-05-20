@@ -1347,16 +1347,14 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     document.getElementById('storyWrap').classList.remove('show');
 
     const pronoun = currentGender === 'boy' ? 'he/him' : 'she/her';
-    let userPrompt = `Write a ${currentMood} bedtime adventure story.\n\n`;
-    userPrompt += `Hero: ${name}, a curious and brave ${age}-year-old ${currentGender} (pronouns: ${pronoun})\n`;
     const sidekickPronoun = currentSidekickGender === 'boy' ? 'he/him' : 'she/her';
-    userPrompt += `Companion: ${sidekickName}, ${name}'s ${sidekickAnimal} (${currentSidekickGender}, pronouns: ${sidekickPronoun}) — scared of everything, accidentally funny, but fiercely loyal. The comic relief. Always nervous, always complaining a little, but always shows up when it counts.\n`;
-    userPrompt += `Character dynamic: ${name} is always brave and wise beyond their years — runs toward the danger, never freezes, and says calm reassuring things to ${sidekickName} when ${sidekickPronoun.split('/')[0]} is scared. Simple wisdom a child would say -- something short, direct, and brave. Never a cliche. Never the same line twice. ${sidekickName} is always afraid and funny — but express this differently every time. Never repeat the same line or phrase across a story. Instead of defaulting to "I don't like this" use a wide variety: freezing up, whimpering, hiding behind something too small, listing reasons why this is a bad idea, trying to bargain their way out, pretending to be invisible, asking if they can just go home, giving the danger a polite but firm "no thank you." The fear should always feel fresh and funny, never like a catchphrase. Include at least one moment where ${name} says something wise that calms ${sidekickName} down just enough to keep going.\n`;
-    userPrompt += `Crossover universe: ${universe}\n`;
+    let userPrompt = `Write a ${currentMood} bedtime adventure story.\n\n`;
+    userPrompt += `Hero: ${name}, ${age} years old, ${currentGender} (pronouns: ${pronoun})\n`;
+    userPrompt += `Sidekick: ${sidekickName} the ${sidekickAnimal} (${currentSidekickGender}, pronouns: ${sidekickPronoun})\n`;
+    userPrompt += `Universe: ${universe}\n`;
     userPrompt += `Setting: ${setting}\n`;
     userPrompt += `Mood: ${currentMood}\n`;
-    if (extra) userPrompt += `Extra element to weave in: ${extra}\n`;
-    userPrompt += `\nRemember: open in peril, slow burn tension, clever win. ${name} or Peekchoo solves it with brains.`;
+    if (extra) userPrompt += `Extra element: ${extra}\n`;
 
     try {
       // Pass 1: generate

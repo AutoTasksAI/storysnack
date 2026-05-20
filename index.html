@@ -1343,9 +1343,9 @@ Write the next chapter. Same world, same characters, same tone. End with either 
   }
 
   function renderStory(raw, universe) {
-    const titleMatch = raw.match(/^TITLE:\s*(.+)/m);
-    const title = titleMatch ? titleMatch[1].trim() : 'An Adventure with Seneca & Peekchoo';
-    const body = raw.replace(/^TITLE:\s*.+\n*/m, '').trim();
+    const titleMatch = raw.match(/^#*\s*TITLE:\s*(.+)/m);
+    const title = titleMatch ? titleMatch[1].trim() : 'An Adventure';
+    const body = raw.replace(/^#*\s*TITLE:\s*.+\n*/m, '').trim();
 
     document.getElementById('universeTag').textContent = universe;
     document.getElementById('storyTitle').textContent = title;

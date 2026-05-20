@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StorySnack — AI Bedtime Stories for Kids</title>
+  <title>Story Snacks — AI Bedtime Stories for Kids</title>
   <style>
     :root {
       --bg: #1a1325;
@@ -717,7 +717,7 @@
 
 <header>
   <div class="icon">🐘</div>
-  <h1>StorySnack</h1>
+  <h1>Story Snacks</h1>
   <p class="tagline">Custom bedtime adventures for your kid</p>
   <p class="sub" style="color:red;font-size:16px;font-weight:bold;">v9</p>
   <p class="sub">Type their name. Pick a world. Hit generate.</p>
@@ -876,7 +876,7 @@
     <h2>⚙️ Setup</h2>
 
     <span class="modal-section-label">Step 1 — Story Generation (required)</span>
-    <p>StorySnack uses Claude AI to write stories. You need a free Anthropic API key.</p>
+    <p>Story Snacks uses Claude AI to write stories. You need a free Anthropic API key.</p>
     <p style="margin-bottom:10px;">
       👉 <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">Get your key at console.anthropic.com</a>
       — sign up free, go to API Keys, create one, paste it here.
@@ -1035,7 +1035,7 @@ NO SOUND EFFECTS: Do not write onomatopoeia or capitalized sound words like THUM
 VOICE PERFORMANCE CUES — embed narrator voice direction markers at key emotional moments using this exact format: [VOICE: instruction]. Place the marker at the very start of the sentence or phrase it affects. Use 3–4 cues per story — only the most important emotional shifts. Less is more. These markers are stripped from the displayed text and only sent to the audio narrator. Only tag moments where the emotional shift is strong enough to warrant a real voice change.
 
 Available cues and when to use them:
-- [VOICE: whispering] — sneaky, secretive, or tense quiet moments
+- [VOICE: whispering] — one sentence only, for a single sneaky or secretive line. Never more than one sentence. Always close with [VOICE: normal] immediately after that sentence.
 - [VOICE: excited and fast] — action peaks, breakthroughs, chases
 - [VOICE: slow and mysterious] — building dread, something unknown approaching
 - [VOICE: warm and soft] — comfort beats, safety, the ending
@@ -1362,13 +1362,11 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     const voiceName = localStorage.getItem('google_voice') || 'Aoede';
     const title = document.getElementById('storyTitle').textContent;
     const rawBody = lastStoryRaw || document.getElementById('storyBody').innerText;
-    // Auto-close any unclosed voice cue so the narrator never gets stuck in a style
-    const closedBody = (() => {
-      const cues = [...rawBody.matchAll(/\[VOICE:\s*([^\]]*)\]/g)];
-      const last = cues.length ? cues[cues.length - 1][1].trim().toLowerCase() : null;
-      if (last && last !== 'normal') return rawBody + ' [VOICE: normal]';
-      return rawBody;
-    })();
+    // Ensure every non-normal voice cue is closed before the next paragraph break or end of text
+    const closedBody = rawBody.replace(/(\[VOICE:(?!.*normal)[^\]]*\])([\s\S]*?)(\n\n|$)/g, (match, cue, content, ending) => {
+      if (/\[VOICE:\s*normal\]/i.test(content)) return match;
+      return `${cue}${content}[VOICE: normal]${ending}`;
+    });
     const ttsBody = closedBody.replace(/\[VOICE:\s*([^\]]*)\]/g, '($1)');
 
     const fullText = `(warm and soft) This is the story of... ${title}. (normal) \n\n${ttsBody}`;

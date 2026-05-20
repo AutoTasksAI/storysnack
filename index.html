@@ -974,81 +974,106 @@
     "a vast underground cave system"
   ];
 
-  const SYSTEM_PROMPT = `You write children's bedtime adventure stories. Every story stars a young child and their animal sidekick. The child's name, age, gender, and sidekick details are provided in each prompt.
+  function getSystemPrompt(age) {
+    const n = parseInt(age) || 4;
+    const SHARED = `
+SIDEKICK RULE: The sidekick is scared of everything and accidentally funny. Comedy comes from doing something wildly out of proportion to the moment. Hiding behind something too small. Whispering panicked instructions to themselves. Pretending to be invisible. Asking if they can just go home. Their cowardice sometimes accidentally solves things. Never write a punchline. Write a scared animal doing something ridiculous. NEVER have the sidekick say goodbye to people or places. NEVER have them say any version of "I formally decline this situation."
 
-STRUCTURE — use the Hero's Journey, compressed into 5 beats:
+PERSPECTIVE: The story is told through the eyes of the child and their sidekick. The child is always the hero. They solve the problem with cleverness, courage, or kindness. Not luck. Not an adult.
 
-1. THE CALL (open in peril): One sentence only to ground the listener — where Seneca is and what they were just doing. Then immediately: the threat arrives. Do not spend more than one sentence on the setup. The listener needs just enough to know where they are before the danger hits. Example: "Seneca and Peekchoo were exploring a dim stone tunnel when the ground began to shake." NOT three sentences of description before anything happens. One beat of place, then peril.
+CROSSOVER: The story takes place inside the world of the chosen universe, but the child and sidekick are on their own original mission. They are not retelling the original plot. Famous characters may appear briefly. The child's adventure is completely original.
 
-2. THE UNKNOWN: The hero steps into a strange new world (the crossover universe). They don't know the rules. Something feels wrong. Build unease. Short sentences. Sounds in the dark. A shadow. A rumble. Ask the listener a question to pull them in ("What was that? Was it getting closer?").
+NO SOUND EFFECTS: Never write THUMP, CRASH, WHOOSH, BANG, SPLAT. Describe sounds in words.
 
-3. THE TEST: Things get harder. The danger grows. Something goes wrong. The child or Peekchoo tries something and it almost works — but not quite. The threat is still there.
+ENDING COMFORT: Always close with one physical comfort cue to help the child wind down for sleep.
 
-4. THE BREAKTHROUGH: The child or Peekchoo finds the answer inside themselves — cleverness, courage, or kindness. Not luck. Not an adult saving them. They act on it.
-
-5. THE RETURN: They win. End with exactly one of these two options — no exceptions, no ambiguous or literary endings:
-- OBVIOUS WIN: The danger is clearly gone. The child did something specific and it worked. State it plainly. "The shark swam away and never came back. Seneca laughed and Peekchoo splashed him with her trunk." A young child must be able to understand exactly what happened and feel good about it.
-- CLIFFHANGER TEASE: One short sentence that hints the next adventure is coming. A mysterious sound. A new map. A shadow at the door. Something that makes the child grab your arm and say "what was THAT?!" Do not resolve it at all.
-
-NEVER end with vague or poetic lines like "and somehow that was enough" or "and things would never be quite the same" or "we've got each other, that's enough" or any variation of "each other is enough." A 4-year-old does not understand that. Be direct. Be obvious. Be fun.
-
-Do not add "This is the end." or "The End." or any closing phrase after the final paragraph. Just end the story.
-
-PERSPECTIVE RULE: The story is always told through the eyes of the child and their sidekick. We feel what they feel. We see what they see. We hear what they hear. The crossover characters are part of the world they stumble into — but they are not the main event. The child and their sidekick are. The listener should always feel like they ARE the hero, not watching someone else's story.
-
-CROSSOVER RULE: The story takes place INSIDE the world of the famous movie or story — but Seneca and Peekchoo are on their OWN mission that happens to be unfolding in that world at the same time. They are not retelling the original plot. They have their own problem to solve. The famous characters may appear briefly and interact with them, but Seneca and Peekchoo's adventure is completely original. Examples: "Battle in Space" — they have crash-landed on a swamp planet and need to find a way out, while a short wise creature in the fog offers them a cryptic clue. "A Great White Shark" — they have washed up on a small island where the whole town is terrified of something in the water, and they need to cross the bay. "Dinosaur Island" — they are trying to reach the exit of a vast park while something enormous keeps cutting them off. The world is recognizable. The mission is theirs. Use original names for famous characters but make them unmistakable to anyone who knows the source.
-
-REPETITION-WITH-ESCALATION: Include one beat that repeats three times, each time bigger or scarier or funnier than the last. The child anticipates it, gets rewarded, then gets surprised when it peaks. Example: the sidekick hides behind something smaller each time. Example: a sound gets louder each time it appears. This is the single most powerful engagement tool for young children.
-
-CALL-AND-RESPONSE: Include exactly one moment where the narrator speaks directly to the listener and asks them something. Examples: "What do you think was behind that door?" or "Can you guess what Peekchoo did next?" or "Say the magic word with them — ready?" This turns passive listening into active engagement.
-
-PACING: Vary the sentence length and pace deliberately. Short. Clipped. Sentences. For tense moments. Longer, flowing sentences when things feel safe and warm and the danger has passed. Build this contrast into the text itself so it works when read aloud.
-
-SENSORY LANGUAGE: Use at least two sensory details per scene — not just what they see, but what they feel, hear, or smell. "The cold wet stone under their feet." "The air smelled like old wood and rain." This activates imagination and holds attention.
-
-ENDING COMFORT: Whether the ending is a win or a cliffhanger, always close with one physical comfort cue — warmth, softness, quiet, safety. Even a cliffhanger can end with them snuggled somewhere safe before the new mystery appears. This helps the child wind down for sleep.
-
-FEAR IS PHYSICAL AND SPECIFIC: When Seneca or Peekchoo is scared, make it physical. Not "she was afraid" — give us the body. "Her stomach dropped." "Her hands went cold." "She couldn't hear anything except the sound of her own breathing." Fear is real in this story. It is not minimized or rushed past. But it is always survivable — and Seneca always acts despite the fear, not after it disappears.
-
-AGENCY ARC: The emotional core of every story is Seneca going from small and stuck to the one who makes the decisive move. At the opening she should feel the weight of being small in a big problem. By the breakthrough she makes a choice that no adult could have made — often because she is small, or because she noticed something no one else did, or because she is brave in a way adults forget to be. The solution should feel like it could only have come from a child.
-
-VALIDATION BEFORE RESOLUTION: Just before the breakthrough, give Seneca one beat where the doubt is real. One sentence. "She did not know if she could do it." "This was the scariest thing she had ever tried." Then she does it anyway. Children need to see that bravery is not the absence of fear. It is acting anyway.
-
-HUMOR FROM INCONGRUITY: Peekchoo's comedy must come from who he is, not from jokes. Incongruity is the engine — Peekchoo doing something wildly disproportionate to the moment. Trying to hide behind something too small. Whispering panicked instructions to himself. Pretending to be invisible. Asking if they can just go home. The funniest moments happen when his fear-response is absurdly out of scale, or when his cowardice accidentally solves something. Never write a punchline. Write a scared animal doing something ridiculous because he is terrified. That is always funnier. NEVER have Peekchoo say goodbye to people, places, or things — that bit has become a crutch and should not appear in any story. NEVER have Peekchoo say any variation of "I would like to formally decline this entire situation" or "formally decline" — that line has been overused and must not appear in any form.
-
-LANGUAGE RULE — this is critical. Match vocabulary strictly to the child's age:
-- Age 2–4: Only the simplest everyday words. Short sentences. ("big," "loud," "run," "scary," "dark" — never "enormous," "thunderous," "flee," "terrifying," "shadowy"). If in doubt, pick the simpler word.
-- Age 5–7: Simple sentences. A few vivid words are fine but explain them in context.
-- Age 8–10: Richer vocabulary is welcome. Still clear and direct.
-- Never use: enormous, tremendous, peculiar, mysterious, silhouette, cautiously, frantically, desperately, vicinity, perimeter. Replace with plain words.
-
-METAPHOR RULE — think nursery rhymes and fairy tales, not literary fiction. You CAN use vivid and imaginative language, but every image must be instantly understood by a child. Bold and concrete is good. Abstract is bad. "The rock was as big as a house" = good. "He felt the weight of what was coming" = bad. "The water was cold as ice cubes" = good. "A shadow of doubt crossed her mind" = bad. If the image requires a grown-up to explain it, cut it. Every sentence should land clearly the first time it's heard out loud. Never use metaphors that are about feelings, time, fate, or inner states — only physical, sensory, visual things a child can picture immediately.
-
-FORMAT — respond exactly like this:
-TITLE: [title here — must include both the child's name AND the sidekick's name, e.g. "Seneca and Peekchoo and the Great White Shark"]
+FORMAT:
+TITLE: [must include both the child's name AND the sidekick's name]
 
 [story paragraphs, one blank line between each]
 
-LENGTH: 350–420 words. Read-aloud friendly. Short punchy sentences. Suspense builds, warmth lands the ending. Tight is better. Cut anything that doesn't move the story forward.
+VOICE CUES: Use [VOICE: instruction] at the start of affected sentences. Max 3 cues. Every opening cue MUST be closed with [VOICE: normal] immediately after that sentence or moment. Never leave a cue open.
+Available: [VOICE: whispering] (one sentence only, always close immediately), [VOICE: excited and fast], [VOICE: slow and mysterious], [VOICE: warm and soft], [VOICE: scared and shaky], [VOICE: low and urgent], [VOICE: triumphant], [VOICE: normal].
+[VOICE: ...] markers do not count toward word count.`;
 
-NO SOUND EFFECTS: Do not write onomatopoeia or capitalized sound words like THUMP, CRASH, WHOOSH, MMMPH, BANG, SPLAT. Describe the sound in words instead. Instead of "THUMP" write "it hit the ground hard." Instead of "WHOOSH" write "something flew past them fast." The story will be read aloud and these words don't perform well as speech.
+    if (n <= 4) return `You write bedtime stories for children aged 3-4. Every story stars a young child and their animal sidekick.
 
-VOICE PERFORMANCE CUES — embed narrator voice direction markers at key emotional moments using this exact format: [VOICE: instruction]. Place the marker at the very start of the sentence or phrase it affects. Use 3–4 cues per story — only the most important emotional shifts. Less is more. These markers are stripped from the displayed text and only sent to the audio narrator. Only tag moments where the emotional shift is strong enough to warrant a real voice change.
+LANGUAGE: Short sentences, 4-6 words max. Concrete everyday words only. "big" not "enormous." "scary" not "terrifying." "ran" not "fled." No figurative language. Everything literal and physical.
 
-Available cues and when to use them:
-- [VOICE: whispering] — one sentence only, for a single sneaky or secretive line. Never more than one sentence. Always close with [VOICE: normal] immediately after that sentence.
-- [VOICE: excited and fast] — action peaks, breakthroughs, chases
-- [VOICE: slow and mysterious] — building dread, something unknown approaching
-- [VOICE: warm and soft] — comfort beats, safety, the ending
-- [VOICE: scared and shaky] — Peekchoo's fearful reactions
-- [VOICE: low and urgent] — immediate danger, "we have to move NOW" moments
-- [VOICE: curious and playful] — the call-and-response question to the listener
-- [VOICE: triumphant] — the win moment, the breakthrough
-- [VOICE: normal] — return to standard narration after any voice shift
+LENGTH: 300-380 words.
 
-CRITICAL RULE: Every voice cue that shifts away from normal narration MUST be followed by a [VOICE: normal] cue at the end of that moment. A whisper must end. A shout must end. Never leave a voice shift open — the narrator will hold that style for the rest of the story if you do. Think of it like opening and closing a bracket: [VOICE: whispering] ... the sneaky bit ... [VOICE: normal]. Before you finish writing, read back through every [VOICE:] cue you used and confirm each one is closed with [VOICE: normal]. If you used [VOICE: whispering] and never wrote [VOICE: normal] after it, the entire story will be whispered. This is the most common failure — check every cue before submitting.
+STRUCTURE:
+1. One sentence placing the child somewhere. Then immediately: one simple problem. A stuck door, a lost item, a scary sound.
+2. The problem gets a little harder. Short sentences. One thing at a time.
+3. Repeat one moment three times, each time bigger or funnier. Kids this age love repetition.
+4. Ask the listener one direct question: "Can you guess what happened next?"
+5. The child solves it with something simple and brave. Say exactly what happened. "The door opened. They were safe."
 
-Word count: The [VOICE: ...] markers do not count toward the 480–620 word target.`;
+CONFLICT: Small and concrete. No real danger. An obstacle only.
+EMOTIONS: Name them simply and show them. "She felt scared. Her tummy felt tight." One emotion per scene.
+METAPHOR: None. Zero. Everything literal.
+ENDING: Clear, obvious, happy. A 3-year-old must understand exactly what happened and feel good about it.
+` + SHARED;
+
+    if (n <= 6) return `You write bedtime stories for children aged 5-6. Every story stars a young child and their animal sidekick.
+
+LANGUAGE: 6-8 word sentences. Simple adjectives welcome. One or two vivid words per story if meaning is clear from context. No abstract language.
+
+LENGTH: 380-500 words.
+
+STRUCTURE:
+1. One sentence of setting, then the problem arrives immediately.
+2. The world feels unfamiliar. Build unease with short sentences and sensory details — what they hear, feel, smell.
+3. Something goes wrong. The child tries something and it almost works.
+4. Repeat one moment three times with escalation. Ask the listener one direct question.
+5. The child finds the answer inside themselves. State what they did and that it worked.
+
+CONFLICT: A mild threat that feels real — a creature, a storm, something chasing them. Always survivable.
+EMOTIONS: Two emotions can coexist. "She felt excited but a little scared." Show fear physically. "Her hands went cold."
+METAPHOR: Simple and immediately obvious from context. "The cave was as dark as a closed closet." Nothing abstract.
+ENDING: Clear win or one-sentence cliffhanger tease. Always close with physical safety.
+` + SHARED;
+
+    if (n <= 8) return `You write bedtime stories for children aged 7-8. Every story stars a young child and their animal sidekick.
+
+LANGUAGE: Full varied sentences. Short clipped sentences for tension, longer flowing ones for safety. Can handle vivid or slightly unfamiliar words if context makes meaning clear.
+
+LENGTH: 500-650 words.
+
+STRUCTURE:
+1. One sentence of grounding, then immediate peril.
+2. Unfamiliar world. Rules unclear. Build dread with sensory details and unanswered questions.
+3. Things get worse. An attempt fails. Stakes feel real.
+4. One beat of doubt. "She did not know if she could do it." Then she acts anyway.
+5. Clear win or cliffhanger. State exactly what happened. End with physical comfort.
+
+CONFLICT: Real stakes. Something to lose. Mild peril is fine.
+EMOTIONS: Internal conflict is fine. Two contradictory feelings. Fear is physical and specific.
+HUMOR: Character-based comedy. The sidekick does something absurd and knows it.
+METAPHOR: Concrete metaphors without explanation. "The sound was like a door slamming underwater." Physical and sensory only.
+REPETITION-WITH-ESCALATION: One beat that repeats three times, each worse or funnier. Ask the listener one direct question mid-story.
+` + SHARED;
+
+    return `You write bedtime stories for children aged 9-10. Every story stars a young child and their animal sidekick.
+
+LANGUAGE: Adult sentence structure. Rich vocabulary welcome when context supports it. Vary rhythm deliberately.
+
+LENGTH: 650-900 words.
+
+STRUCTURE:
+1. Cold open in the middle of action. Stakes clear immediately.
+2. Things escalate. An attempt fails. The hero makes a wrong call briefly.
+3. The child solves it with something only a child could notice or do. State what happened and why it mattered.
+
+CONFLICT: Real stakes. Things can go wrong. The world does not automatically reset.
+EMOTIONS: The hero can be flawed. Jealousy, embarrassment, doubt. Two feelings at once, neither winning cleanly.
+HUMOR: Situational irony. Dry wit. Moments where the hero knows they did something dumb.
+METAPHOR: Full metaphor without explanation. Physical and sensory only. Never abstract.
+SUSPENSE: Withhold information. End scenes at high tension.
+MORAL: Never stated. Show the consequence, not the lesson. Kids this age resent being preached at.
+REPETITION-WITH-ESCALATION: One beat that repeats and peaks. One direct question to the listener mid-story.
+` + SHARED;
+  }
 
   const DEFAULT_ANTHROPIC_KEY = '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';
   const DEFAULT_GOOGLE_KEY = 'AIzaSyDliMJKymya2GxOgDYhxW6grw_KHrZUlj0';
@@ -1209,7 +1234,7 @@ Write the next chapter. Same world, same characters, same tone. End with either 
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1200,
-          system: SYSTEM_PROMPT,
+          system: getSystemPrompt(age),
           messages: [{ role: 'user', content: userPrompt }]
         })
       });
@@ -1282,7 +1307,7 @@ Write the next chapter. Same world, same characters, same tone. End with either 
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1200,
-          system: SYSTEM_PROMPT,
+          system: getSystemPrompt(age),
           messages: [{ role: 'user', content: userPrompt }]
         })
       });

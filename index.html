@@ -719,7 +719,7 @@
   <div class="icon">🐘</div>
   <h1>StorySnack</h1>
   <p class="tagline">Custom bedtime adventures for your kid</p>
-  <p class="sub" style="color:red;font-size:16px;font-weight:bold;">v8</p>
+  <p class="sub" style="color:red;font-size:16px;font-weight:bold;">v9</p>
   <p class="sub">Type their name. Pick a world. Hit generate.</p>
 </header>
 
@@ -1323,8 +1323,7 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     // Show Continue button always — player decides if it was a cliffhanger
     document.getElementById('continueBtn').style.display = '';
 
-    const googleKey = localStorage.getItem('google_key');
-    document.getElementById('audioSection').classList.toggle('show', !!googleKey);
+    document.getElementById('audioSection').classList.add('show');
     document.getElementById('audioPlayer').classList.remove('show');
     document.getElementById('audioLoadingMsg').classList.remove('show');
     document.getElementById('playStoryBtn').disabled = false;
@@ -1360,13 +1359,6 @@ Write the next chapter. Same world, same characters, same tone. End with either 
   }
 
   async function playStory() {
-    const googleKey = localStorage.getItem('google_key');
-    if (!googleKey) {
-      setError('Add your Google AI Studio API key in settings to use audio narration.');
-      openSettings();
-      return;
-    }
-
     const voiceName = localStorage.getItem('google_voice') || 'Aoede';
     const title = document.getElementById('storyTitle').textContent;
     const rawBody = lastStoryRaw || document.getElementById('storyBody').innerText;
@@ -1385,7 +1377,7 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     setError('');
 
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${googleKey}`, {
+      const res = await fetch('https://storysnack-proxy.nftpump-io.workers.dev/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

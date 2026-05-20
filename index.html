@@ -1091,6 +1091,11 @@ REPETITION-WITH-ESCALATION: One beat that repeats and peaks. One direct question
     bear: 'Bramble', fox: 'Rusty', owl: 'Hoot', dinosaur: 'Stomps',
     tiger: 'Rex', penguin: 'Waddles', wolf: 'Shadow', rabbit: 'Clover'
   };
+  const ANIMAL_EMOJI = {
+    elephant: '🐘', dog: '🐶', lion: '🦁', dragon: '🐉',
+    bear: '🐻', fox: '🦊', owl: '🦉', dinosaur: '🦕',
+    tiger: '🐯', penguin: '🐧', wolf: '🐺', rabbit: '🐰'
+  };
   let audioBlob = null;
   let currentAudioUrl = null;
 
@@ -1111,6 +1116,7 @@ REPETITION-WITH-ESCALATION: One beat that repeats and peaks. One direct question
     }
     if (savedAnimal) document.getElementById('sidekickAnimal').value = savedAnimal;
     if (savedSidekick) document.getElementById('sidekickName').value = savedSidekick;
+    updateSidekickName();
     if (savedSidekickGender) {
       currentSidekickGender = savedSidekickGender;
       document.getElementById('sidekickBoy').classList.toggle('active', savedSidekickGender === 'boy');
@@ -1179,6 +1185,9 @@ REPETITION-WITH-ESCALATION: One beat that repeats and peaks. One direct question
       document.getElementById('sidekickName').value = DEFAULT_SIDEKICK_NAMES[animal];
     }
     localStorage.setItem('sp_animal', animal);
+    const emoji = ANIMAL_EMOJI[animal] || '🐾';
+    document.getElementById('genBtn').textContent = `${emoji} Generate Adventure`;
+    document.querySelector('.icon').textContent = emoji;
   }
 
   // --- Surprise ---
@@ -1203,6 +1212,9 @@ REPETITION-WITH-ESCALATION: One beat that repeats and peaks. One direct question
     const pronoun = currentGender === 'boy' ? 'he/him' : 'she/her';
 
     stopAudio();
+    const loadEmoji = ANIMAL_EMOJI[sidekickAnimal] || '🐾';
+    document.querySelector('#loadingWrap .loading-icon').textContent = loadEmoji;
+    document.querySelector('#loadingWrap p').textContent = `${name} and ${sidekickName} are getting into trouble...`;
     setLoading(true);
     setError('');
     document.getElementById('storyWrap').classList.remove('show');
@@ -1284,6 +1296,8 @@ Write the next chapter. Same world, same characters, same tone. End with either 
       : settingVal;
 
     stopAudio();
+    document.querySelector('#loadingWrap .loading-icon').textContent = ANIMAL_EMOJI[sidekickAnimal] || '🐾';
+    document.querySelector('#loadingWrap p').textContent = `${name} and ${sidekickName} are getting into trouble...`;
     setLoading(true);
     setError('');
     document.getElementById('storyWrap').classList.remove('show');

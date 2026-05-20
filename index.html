@@ -1545,6 +1545,79 @@ ${draft}`;
     }
   }
 
+  // --- Ambient Music ---
+  let _ambiCtx = null;
+  let _ambiOscs = [];
+  let _ambiMaster = null;
+
+  const AMBI_PRESETS = {
+    exciting:    { freqs: [196, 246.94, 293.66, 369.99], wave: 'triangle', lfo: 1.1, vol: 0.06 },
+    spooky:      { freqs: [87.31, 92.50, 116.54],        wave: 'sawtooth', lfo: 0.18, vol: 0.05 },
+    cozy:        { freqs: [130.81, 164.81, 196.00],      wave: 'sine',     lfo: 0.38, vol: 0.07 },
+    calm:        { freqs: [110.00, 138.59, 164.81],      wave: 'sine',     lfo: 0.28, vol: 0.06 },
+    funny:       { freqs: [261.63, 329.63, 392.00],      wave: 'triangle', lfo: 0.85, vol: 0.05 },
+    mysterious:  { freqs: [116.54, 138.59, 164.81],      wave: 'sine',     lfo: 0.13, vol: 0.06 }
+  };
+
+  function startAmbience(mood) {
+    stopAmbience();
+    try {
+      _ambiCtx = new (window.AudioContext || window.webkitAudioContext)();
+      _ambiMaster = _ambiCtx.createGain();
+      _ambiMaster.gain.setValueAtTime(0, _ambiCtx.currentTime);
+      _ambiMaster.gain.linearRampToValueAtTime(0, _ambiCtx.currentTime + 0.01);
+
+      const filter = _ambiCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 700;
+      filter.connect(_ambiMaster);
+      _ambiMaster.connect(_ambiCtx.destination);
+
+      const p = AMBI_PRESETS[mood] || AMBI_PRESETS.cozy;
+
+      p.freqs.forEach((freq, i) => {
+        const osc = _ambiCtx.createOscillator();
+        const oscGain = _ambiCtx.createGain();
+        const lfo = _ambiCtx.createOscillator();
+        const lfoGain = _ambiCtx.createGain();
+
+        osc.type = p.wave;
+        osc.frequency.value = freq;
+        oscGain.gain.value = 0.28 / p.freqs.length;
+
+        lfo.frequency.value = p.lfo * (1 + i * 0.08);
+        lfoGain.gain.value = 0.018;
+        lfo.connect(lfoGain);
+        lfoGain.connect(oscGain.gain);
+
+        osc.connect(oscGain);
+        oscGain.connect(filter);
+        osc.start();
+        lfo.start();
+        _ambiOscs.push(osc, lfo);
+      });
+
+      // Fade in over 3 seconds
+      _ambiMaster.gain.linearRampToValueAtTime(p.vol, _ambiCtx.currentTime + 3);
+    } catch(e) {}
+  }
+
+  function stopAmbience() {
+    if (!_ambiCtx) return;
+    try {
+      _ambiMaster.gain.linearRampToValueAtTime(0, _ambiCtx.currentTime + 1.5);
+      const ctx = _ambiCtx;
+      const oscs = _ambiOscs;
+      setTimeout(() => {
+        oscs.forEach(o => { try { o.stop(); } catch(e) {} });
+        try { ctx.close(); } catch(e) {}
+      }, 1600);
+    } catch(e) {}
+    _ambiCtx = null;
+    _ambiOscs = [];
+    _ambiMaster = null;
+  }
+
   // --- Web Audio API (works on iOS Safari) ---
   let _audioCtx = null;
   let _audioBuffer = null;
@@ -1604,6 +1677,7 @@ ${draft}`;
     _audioEnded = false;
     _audioBuffer = null;
     stopProgressTracking();
+    stopAmbience();
     document.getElementById('audioPlayer').classList.remove('show');
     document.getElementById('progressFill').style.width = '0%';
     document.getElementById('audioTime').textContent = '0:00 / 0:00';
@@ -1623,6 +1697,7 @@ ${draft}`;
     _audioEnded = false;
     document.getElementById('playPauseBtn').textContent = '⏸';
     document.getElementById('audioPlayer').classList.add('show');
+    if (offset === 0) startAmbience(currentMood);
     _audioSource.onended = () => {
       if (_audioPlaying) {
         _audioPlaying = false;
@@ -1631,6 +1706,7 @@ ${draft}`;
         document.getElementById('playPauseBtn').textContent = '▶';
         document.getElementById('progressFill').style.width = '100%';
         stopProgressTracking();
+        stopAmbience();
       }
     };
     startProgressTracking();

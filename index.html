@@ -1045,7 +1045,7 @@ Available cues and when to use them:
 - [VOICE: triumphant] — the win moment, the breakthrough
 - [VOICE: normal] — return to standard narration after any voice shift
 
-CRITICAL RULE: Every voice cue that shifts away from normal narration MUST be followed by a [VOICE: normal] cue at the end of that moment. A whisper must end. A shout must end. Never leave a voice shift open — the narrator will hold that style for the rest of the story if you do. Think of it like opening and closing a bracket: [VOICE: whispering] ... the sneaky bit ... [VOICE: normal].
+CRITICAL RULE: Every voice cue that shifts away from normal narration MUST be followed by a [VOICE: normal] cue at the end of that moment. A whisper must end. A shout must end. Never leave a voice shift open — the narrator will hold that style for the rest of the story if you do. Think of it like opening and closing a bracket: [VOICE: whispering] ... the sneaky bit ... [VOICE: normal]. Before you finish writing, read back through every [VOICE:] cue you used and confirm each one is closed with [VOICE: normal]. If you used [VOICE: whispering] and never wrote [VOICE: normal] after it, the entire story will be whispered. This is the most common failure — check every cue before submitting.
 
 Word count: The [VOICE: ...] markers do not count toward the 480–620 word target.`;
 
@@ -1362,7 +1362,14 @@ Write the next chapter. Same world, same characters, same tone. End with either 
     const voiceName = localStorage.getItem('google_voice') || 'Aoede';
     const title = document.getElementById('storyTitle').textContent;
     const rawBody = lastStoryRaw || document.getElementById('storyBody').innerText;
-    const ttsBody = rawBody.replace(/\[VOICE:\s*([^\]]*)\]/g, '($1)');
+    // Auto-close any unclosed voice cue so the narrator never gets stuck in a style
+    const closedBody = (() => {
+      const cues = [...rawBody.matchAll(/\[VOICE:\s*([^\]]*)\]/g)];
+      const last = cues.length ? cues[cues.length - 1][1].trim().toLowerCase() : null;
+      if (last && last !== 'normal') return rawBody + ' [VOICE: normal]';
+      return rawBody;
+    })();
+    const ttsBody = closedBody.replace(/\[VOICE:\s*([^\]]*)\]/g, '($1)');
 
     const fullText = `(warm and soft) This is the story of... ${title}. (normal) \n\n${ttsBody}`;
 

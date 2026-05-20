@@ -1422,9 +1422,9 @@ ${draft}`;
   }
 
   function renderStory(raw, universe) {
-    const titleMatch = raw.match(/^#*\s*TITLE:\s*(.+)/m);
-    const title = titleMatch ? titleMatch[1].trim() : 'An Adventure';
-    const body = raw.replace(/^#*\s*TITLE:\s*.+\n*/m, '').trim();
+    const titleMatch = raw.match(/^[#*\s]*TITLE:\s*[*_]*(.+?)[*_]*$/m);
+    const title = titleMatch ? titleMatch[1].trim() : '';
+    const body = raw.replace(/^[#*\s]*TITLE:\s*.+\n*/m, '').trim();
 
     document.getElementById('universeTag').textContent = universe;
     document.getElementById('storyTitle').textContent = title;
@@ -1489,7 +1489,7 @@ ${draft}`;
     });
     const ttsBody = closedBody.replace(/\[VOICE:\s*([^\]]*)\]/g, '($1)');
 
-    const fullText = `(warm and soft) This is the story of... ${title}. (normal) \n\n${ttsBody}`;
+    const fullText = `(warm and soft) ${title}. (normal, pause) \n\n${ttsBody}`;
 
     const ctx = getAudioCtx();
     await ctx.resume();
